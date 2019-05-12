@@ -21,7 +21,15 @@ public class MessageListener implements ApplicationListener<MessageBroker> {
 		System.out.println("Received spring custom event - " + event.getReceivedMessage());
 
 		if (null != event) {
-			MessageTemplate template = event.getReceivedMessage();
+			MessageTemplate template = null;
+			try {
+				template = (MessageTemplate) event.dequeue();
+			} catch (InterruptedException e) {
+				// TO-DO : Add data to error queue.
+				System.err.println("Error occurred while processing data...");
+				e.printStackTrace();
+				return;
+			}
 			String msgType = template.getMsgType().toUpperCase().trim();
 
 			MessageProcessor messageProcessor = (MessageProcessor) ctx.getBean(msgType);
